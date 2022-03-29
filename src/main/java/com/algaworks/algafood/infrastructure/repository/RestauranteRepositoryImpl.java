@@ -32,6 +32,8 @@ public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
 		//construtor das clausulas
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Restaurante> criteria = builder.createQuery(Restaurante.class);
+		
+		
 
 		//é o mesmo que "from Restaurante"
 		//Root é a raiz

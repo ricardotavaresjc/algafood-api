@@ -39,54 +39,32 @@ public class CidadeController {
 	}
 
 	@GetMapping("/{cidadeId}")
-	public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
-		Optional<Cidade> cidade = cidadeRepository.findById(cidadeId);
+	public Cidade buscar(@PathVariable Long cidadeId) {
+		return cadastroCidadeService.buscarOuFalhar(cidadeId);
 
-		if (cidade.isPresent()) {
-			return ResponseEntity.ok(cidade.get());
-		}
-
-		return ResponseEntity.notFound().build();
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade){		
-		try {
-			cidade = cadastroCidadeService.salvar(cidade);
-			return ResponseEntity.ok(cidade);
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+	public Cidade adicionar(@RequestBody Cidade cidade) {
+		return cadastroCidadeService.salvar(cidade);
+
 	}
 
 	@PutMapping("/{cidadeId}")
-	public ResponseEntity<Cidade> atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade ){
-		Optional<Cidade> cidadeAtual = cidadeRepository.findById(cidadeId);
+	public Cidade atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
+		Cidade cidadeAtual = cadastroCidadeService.buscarOuFalhar(cidadeId);
 
-		if (cidadeAtual.isPresent()) {
-			BeanUtils.copyProperties(cidade, cidadeAtual.get(),"id");
-			Cidade cidadeSalva = cadastroCidadeService.salvar(cidadeAtual.get());
-
-			return ResponseEntity.ok(cidadeSalva);
-		}
-
-		return ResponseEntity.notFound().build();
+		BeanUtils.copyProperties(cidade, cidadeAtual, "id");
+		return cadastroCidadeService.salvar(cidadeAtual);
 
 	}
 
 	@DeleteMapping("/{cidadeId}")
-	public ResponseEntity<?> remover(@PathVariable Long cidadeId){
-		try {
-			cadastroCidadeService.remover(cidadeId);
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long cidadeId) {
+		cadastroCidadeService.excluir(cidadeId);
 
-			return ResponseEntity.noContent().build();
-
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.notFound().build();
-		}catch (EntidadeEmUsoException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
 	}
 
 }
