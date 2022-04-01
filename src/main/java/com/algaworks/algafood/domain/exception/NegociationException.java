@@ -12,5 +12,10 @@ public class NegociationException extends RuntimeException{
 	public NegociationException(String mensagem) {
 		super(mensagem);
 	}
+	
+	//Pegando toda pilha da exceção
+	public NegociationException(String mensagem, Throwable causa) {
+		super(mensagem, causa);
+	}
 
 }

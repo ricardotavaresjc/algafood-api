@@ -6,13 +6,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
+import com.algaworks.algafood.domain.exception.FormaPagamentoNaoEncontradoException;
 import com.algaworks.algafood.domain.model.FormaPagamento;
 import com.algaworks.algafood.domain.repository.FormaPagamentoRepository;
 
 @Service
 public class FormaPagamentoService {
 
+	private static final String MSG_FORMA_DE_PAGAMENTO_EM_USO = "Forma de Pagamento de codigo %d não pode ser removida, pois está em uso";
 	@Autowired
 	private FormaPagamentoRepository repository;
 
@@ -24,11 +25,10 @@ public class FormaPagamentoService {
 		try {
 			repository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Não existe um cadastro de forma de pagamento com o codigo %d", id));
+			throw new FormaPagamentoNaoEncontradoException(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(
-					String.format("Forma de Pagamento de codigo %d não pode ser removida, pois está em uso", id));
+					String.format(MSG_FORMA_DE_PAGAMENTO_EM_USO, id));
 		}
 	}
 

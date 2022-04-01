@@ -6,13 +6,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
-import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
+import com.algaworks.algafood.domain.exception.PermissaoNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Permissao;
 import com.algaworks.algafood.domain.repository.PermissaoRepository;
 
 @Service
 public class PermissaoService {
 
+	private static final String MSG_PERMISSAO_EM_USO = "Permissao de código %d não pode ser removida, pois está em uso";
 	@Autowired
 	private PermissaoRepository repository;
 
@@ -24,12 +25,11 @@ public class PermissaoService {
 		try {
 			repository.deleteById(id);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Cidade não encontrada com id %d", id));
+			throw new PermissaoNaoEncontradaException(id);
 
 		}catch (DataIntegrityViolationException e) {
                 throw new EntidadeEmUsoException(
-                    String.format("Cidade de código %d não pode ser removida, pois está em uso", id));
+                    String.format(MSG_PERMISSAO_EM_USO, id));
         }
 	}
 }
