@@ -1,12 +1,15 @@
 package com.algaworks.algafood.api.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,12 +19,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.algaworks.algafood.api.exceptionhandller.Problema;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.EstadoNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegociationException;
 import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.repository.CidadeRepository;
 import com.algaworks.algafood.domain.service.CadastroCidadeService;
+
+import lombok.Builder;
 
 @RestController
 @RequestMapping("/cidades")
@@ -65,7 +71,7 @@ public class CidadeController {
 			return cadastroCidadeService.salvar(cidadeAtual);
 			
 		} catch (EstadoNaoEncontradaException e) {
-			throw new NegociationException(e.getMessage(), e);
+			throw new NegociationException(e.getMessage());
 		}
 		
 
@@ -76,6 +82,6 @@ public class CidadeController {
 	public void remover(@PathVariable Long cidadeId) {
 		cadastroCidadeService.excluir(cidadeId);
 
-	}
+	}	
 
 }
