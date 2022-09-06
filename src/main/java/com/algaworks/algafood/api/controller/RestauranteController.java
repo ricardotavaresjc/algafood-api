@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
-import com.algaworks.algafood.domain.exception.NegociationException;
+import com.algaworks.algafood.domain.exception.NegocioException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
@@ -53,7 +53,7 @@ public class RestauranteController {
 		try {
 			return cadastroRestauranteService.salvar(restaurante);
 		} catch (CozinhaNaoEncontradaException e) {
-			throw new NegociationException(e.getMessage(), e);
+			throw new NegocioException(e.getMessage(), e);
 		}
 
 	}
@@ -68,7 +68,7 @@ public class RestauranteController {
 		try {
 			return cadastroRestauranteService.salvar(restauranteAtual);
 		} catch (CozinhaNaoEncontradaException e) {
-			throw new NegociationException(e.getMessage(), e);
+			throw new NegocioException(e.getMessage(), e);
 		}
 
 	}
