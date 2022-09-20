@@ -18,11 +18,17 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.groups.ConvertGroup;
+import javax.validation.groups.Default;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.algaworks.algafood.Groups;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -38,10 +44,11 @@ public class Restaurante {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@NotNull
+	@NotBlank
 	@Column(nullable = false)
 	private String nome;
 
+	@PositiveOrZero
 	@Column(name = "taxa_frete", nullable = false)
 	private BigDecimal taxaFrete;
 
@@ -57,7 +64,10 @@ public class Restaurante {
 	@Column(nullable = false, columnDefinition = "datetime")
 	private LocalDateTime dataAtualizacao;
 
-	//@JsonIgnore
+	//@JsonIgnore	
+	@Valid //precisa do valid para o @NotNull agir em cascata
+	@ConvertGroup(from = Default.class, to = Groups.CozinhaID.class)
+	@NotNull// Não é o suficiente, ou seja nesse caso so vai validar a instancia e não sobre o os atributos dela
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
