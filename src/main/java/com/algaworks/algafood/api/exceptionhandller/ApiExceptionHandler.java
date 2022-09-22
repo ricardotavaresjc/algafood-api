@@ -6,6 +6,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.MessageSourceResourceBundle;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,10 @@ import com.fasterxml.jackson.databind.exc.PropertyBindingException;
 
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+	
+	//Interface para resolver mensagens
+	@Autowired
+	private MessageSource messageSource;
 	
 	public static final String MSG_ERRO_GENERICA_USUARIO_FINAL
 	= "Ocorreu um erro interno inesperado no sistema. Tente novamente e se "
@@ -168,10 +176,14 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	    
 	    BindingResult bindingResult = ex.getBindingResult();
 	    List<Problem.Field> problemaFields = bindingResult.getFieldErrors().stream()
-	    		.map(fieldError -> Problem.Field.builder()
+	    		.map(fieldError -> {
+	    			String message =messageSource.getMessage(fieldError, LocaleContextHolder.getLocale()) ;//local le o message.propeties
+	    			
+	    			return Problem.Field.builder()
 	    				.name(fieldError.getField())
-	    				.userMessage(fieldError.getDefaultMessage())
-	    				.build())
+	    				.userMessage(message)
+	    				.build();
+	    		})
 	    		.collect(Collectors.toList());
 	        
 	    Problem problem = createProblemBuilder(status, problemType, detail)
