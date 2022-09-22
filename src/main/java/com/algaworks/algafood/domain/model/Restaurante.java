@@ -66,7 +66,7 @@ public class Restaurante {
 
 	//@JsonIgnore	
 	@Valid //precisa do valid para o @NotNull agir em cascata
-	@ConvertGroup(from = Default.class, to = Groups.CozinhaID.class)
+	@ConvertGroup(from = Default.class, to = Groups.CozinhaId.class)
 	@NotNull// Não é o suficiente, ou seja nesse caso so vai validar a instancia e não sobre o os atributos dela
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)

@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.algaworks.algafood.Groups;
-import com.algaworks.algafood.Groups.CozinhaID;
+import com.algaworks.algafood.Groups.CozinhaId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 public class Cozinha {
 
-	@NotNull(groups = Groups.CozinhaID.class)
+	@NotNull(groups = Groups.CozinhaId.class)
 	@EqualsAndHashCode.Include	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
