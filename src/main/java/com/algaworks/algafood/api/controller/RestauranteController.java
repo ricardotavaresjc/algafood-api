@@ -1,23 +1,15 @@
 package com.algaworks.algafood.api.controller;
 
-import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.SmartValidator;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,14 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.algaworks.algafood.core.validation.ValidacaoException;
+import com.algaworks.algafood.api.model.CozinhaModel;
+import com.algaworks.algafood.api.model.RestauranteModel;
+import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/restaurantes")
@@ -49,22 +42,22 @@ public class RestauranteController {
 	private SmartValidator validator;
 
 	@GetMapping
-	public List<Restaurante> listar() {
-		return restauranteRepository.findAll();
+	public List<RestauranteModel> listar() {
+		return toCollectionModel(restauranteRepository.findAll());
 	}
 
 	@GetMapping("/{restauranteID}")
-	public Restaurante buscar(@PathVariable Long restauranteID) {
-		return cadastroRestauranteService.buscarOuFalhar(restauranteID);
+	public RestauranteModel buscar(@PathVariable Long restauranteID) {
+		return toModel(cadastroRestauranteService.buscarOuFalhar(restauranteID));
 
 	}
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Restaurante adicionar(@RequestBody @Valid Restaurante restaurante) {
-
+	public RestauranteModel adicionar(@RequestBody @Valid RestauranteInput restauranteInput) {
+		Restaurante restaurante = toDomainObject(restauranteInput);
 		try {
-			return cadastroRestauranteService.salvar(restaurante);
+			return toModel(cadastroRestauranteService.salvar(restaurante));
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
@@ -72,86 +65,122 @@ public class RestauranteController {
 	}
 
 	@PutMapping("/{restauranteId}")
-	public Restaurante atualizar(@PathVariable Long restauranteId, @RequestBody @Valid Restaurante restaurante) {
+	public RestauranteModel atualizar(@PathVariable Long restauranteId, @RequestBody @Valid Restaurante restaurante) {
 		Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
 
 		BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco", "dataCadastro",
 				"produtos");
 
 		try {
-			return cadastroRestauranteService.salvar(restauranteAtual);
+			return toModel(cadastroRestauranteService.salvar(restauranteAtual));
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);
 		}
 
 	}
 
-	@PatchMapping("/{restauranteId}")
-	public Restaurante atualizarParcial(@PathVariable Long restauranteId, 
-			@RequestBody Map<String, Object> campos, HttpServletRequest request) {
-		Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
-
-		merge(campos, restauranteAtual, request);
-		validate(restauranteAtual, "restaurante");
-
-		return atualizar(restauranteId, restauranteAtual);
+//	@PatchMapping("/{restauranteId}")
+//	public Restaurante atualizarParcial(@PathVariable Long restauranteId, 
+//			@RequestBody Map<String, Object> campos, HttpServletRequest request) {
+//		Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
+//
+//		merge(campos, restauranteAtual, request);
+//		validate(restauranteAtual, "restaurante");
+//
+//		return atualizar(restauranteId, restauranteAtual);
+//	}
+//	
+//	private void validate(Restaurante restaurante, String objectName) {
+//		BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(restaurante, objectName);
+//		validator.validate(restaurante, bindingResult);
+//		
+//		if (bindingResult.hasErrors()) {
+//			throw new ValidacaoException(bindingResult);
+//		}
+//	}
+//
+//	/**
+//	 * Cada propriedade dos dadosOrigem que veio no mapa deve ser passada para
+//	 * restauranteDestino usando a API de Reflections do Spring
+//	 */
+//	private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino, HttpServletRequest request) {
+//		ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
+//		try {
+//			
+//			/*
+//			 * ObjectMapper responsavel por converter(serializar) json em Obj Java ou vice versa
+//			 * objectMapper.convertValue(dadosOrigem, Restaurante.class) esta convertendo o que esta vindo
+//			 * no corpo para restaurante
+//			 */
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+//			Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
+//			
+//			dadosOrigem.forEach((nomePropriedade, valorPropriedade)-> {
+//				/*Declaração do Field do java.lang
+//				 * field representa o atributo de restaurante que queremos modificar
+//				 * ReflectionUtils é do Spring
+//				 * o findField busca na classe Restaurante a propriedade que esta vindo em tempo de execução
+//				 * REtorna a instancia de um campo
+//				 */
+//				Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
+//				
+//				//Usado para permitir acesso aos metodos privados da classe Restaurante. Torna a variavel privada acessivel
+//				field.setAccessible(true);
+//				
+//				/*
+//				 * retorna o valor de um campo, o valor da propriedade
+//				 */
+//				Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
+//				
+//				/*pega o valor na recuperado na instancia Field field e modifica para o novo valor
+//				 *
+//				 */
+//				ReflectionUtils.setField(field, restauranteDestino, novoValor);
+//		
+//		});
+//		}catch(IllegalArgumentException e){
+//			Throwable rootCause = ExceptionUtils.getRootCause(e);
+//			throw new HttpMessageNotReadableException(e.getMessage(),rootCause, serverHttpRequest);
+//		}
+//
+//	}
+	
+	private RestauranteModel toModel(Restaurante restaurante) {
+		CozinhaModel cozinhaModel = new CozinhaModel();
+		cozinhaModel.setId(restaurante.getCozinha().getId());
+		cozinhaModel.setNome(restaurante.getCozinha().getNome());
+		
+		RestauranteModel restauranteModel = new RestauranteModel();
+		restauranteModel.setId(restaurante.getId());
+		restauranteModel.setNome(restaurante.getNome());
+		restauranteModel.setTaxaFrete(restaurante.getTaxaFrete());
+		restauranteModel.setCozinha(cozinhaModel);
+		return restauranteModel;
 	}
 	
-	private void validate(Restaurante restaurante, String objectName) {
-		BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(restaurante, objectName);
-		validator.validate(restaurante, bindingResult);
-		
-		if (bindingResult.hasErrors()) {
-			throw new ValidacaoException(bindingResult);
-		}
-	}
-
-	/**
-	 * Cada propriedade dos dadosOrigem que veio no mapa deve ser passada para
-	 * restauranteDestino usando a API de Reflections do Spring
-	 */
-	private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino, HttpServletRequest request) {
-		ServletServerHttpRequest serverHttpRequest = new ServletServerHttpRequest(request);
-		try {
-			
-			/*
-			 * ObjectMapper responsavel por converter(serializar) json em Obj Java ou vice versa
-			 * objectMapper.convertValue(dadosOrigem, Restaurante.class) esta convertendo o que esta vindo
-			 * no corpo para restaurante
-			 */
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
-			Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
-			
-			dadosOrigem.forEach((nomePropriedade, valorPropriedade)-> {
-				/*Declaração do Field do java.lang
-				 * field representa o atributo de restaurante que queremos modificar
-				 * ReflectionUtils é do Spring
-				 * o findField busca na classe Restaurante a propriedade que esta vindo em tempo de execução
-				 * REtorna a instancia de um campo
-				 */
-				Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
-				
-				//Usado para permitir acesso aos metodos privados da classe Restaurante. Torna a variavel privada acessivel
-				field.setAccessible(true);
-				
-				/*
-				 * retorna o valor de um campo, o valor da propriedade
-				 */
-				Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
-				
-				/*pega o valor na recuperado na instancia Field field e modifica para o novo valor
-				 *
-				 */
-				ReflectionUtils.setField(field, restauranteDestino, novoValor);
-		
-		});
-		}catch(IllegalArgumentException e){
-			Throwable rootCause = ExceptionUtils.getRootCause(e);
-			throw new HttpMessageNotReadableException(e.getMessage(),rootCause, serverHttpRequest);
-		}
-
-
+	//Convert o tipo de cada instancia de uma lista em outro tipo
+	private List<RestauranteModel> toCollectionModel(List<Restaurante> restaurantes){
+		return restaurantes.stream()
+				.map(restaurante -> toModel(restaurante))
+				.collect(Collectors.toList());				
 
 	}
+	
+	private Restaurante toDomainObject(RestauranteInput restauranteInput) {
+		Restaurante restaurante = new Restaurante();
+		restaurante.setNome(restauranteInput.getNome());
+		restaurante.setTaxaFrete(restauranteInput.getTaxaFrete());
+		
+		Cozinha cozinha = new Cozinha();
+		cozinha.setId(restauranteInput.getCozinha().getId());
+		
+		restaurante.setCozinha(cozinha);
+		
+		return restaurante;
+	}
+	
+	
+	
+	
 }
