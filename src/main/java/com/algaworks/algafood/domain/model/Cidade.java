@@ -26,13 +26,9 @@ public class Cidade {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@EqualsAndHashCode.Include
 	private Long id;
-
-	@NotBlank
+	
 	private String nome;
-
-	@Valid	
-	@ConvertGroup(from = Default.class, to = Groups.EstadoId.class)
-	@NotNull
+	
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Estado estado;

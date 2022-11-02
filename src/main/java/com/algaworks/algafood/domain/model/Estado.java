@@ -18,13 +18,12 @@ import lombok.EqualsAndHashCode;
 @Entity
 public class Estado {
 
-	@NotNull(groups = Groups.EstadoId.class)
+	//@NotNull(groups = Groups.EstadoId.class)  validado pelo dto
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
-
-	@NotBlank
+	
 	@Column(nullable = false)
 	private String nome;
 

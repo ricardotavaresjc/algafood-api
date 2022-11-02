@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algafood.api.assembler.RestauranteModelAssembler;
-import com.algaworks.algafood.api.assembler.RestauranteModelDisassembler;
+import com.algaworks.algafood.api.assembler.RestauranteInputDisassembler;
 import com.algaworks.algafood.api.model.RestauranteModel;
 import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
@@ -44,7 +44,7 @@ public class RestauranteController {
 	private RestauranteModelAssembler restauranteModelAssembler;
 	
 	@Autowired
-	private RestauranteModelDisassembler restauranteModelDisassembler;
+	private RestauranteInputDisassembler restauranteModelDisassembler;
 
 	@GetMapping
 	public List<RestauranteModel> listar() {
@@ -73,13 +73,11 @@ public class RestauranteController {
 
 	@PutMapping("/{restauranteId}")
 	public RestauranteModel atualizar(@PathVariable Long restauranteId, @RequestBody @Valid RestauranteInput restauranteInput) {
-		Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
-		Restaurante restaurante = restauranteModelDisassembler.toDomainObject(restauranteInput);
-
-		BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco", "dataCadastro",
-				"produtos");
 
 		try {
+			Restaurante restauranteAtual = cadastroRestauranteService.buscarOuFalhar(restauranteId);
+			restauranteModelDisassembler.copyToDomainObject(restauranteInput, restauranteAtual);
+			
 			return restauranteModelAssembler.toModel(cadastroRestauranteService.salvar(restauranteAtual));
 		} catch (CozinhaNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage(), e);

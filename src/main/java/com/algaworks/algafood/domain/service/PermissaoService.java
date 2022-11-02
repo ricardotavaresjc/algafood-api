@@ -27,6 +27,12 @@ public class PermissaoService {
 	public void excluir(Long id) {
 		try {
 			repository.deleteById(id);
+			/*
+			 * Utilizado para garantir que o JPA vai descarregar o que tem 
+			 * em memoria para o banco e não ficar carregando em uma fila 
+			 * Isso faz com que ele caia no tratamento abaixo que estamos fazendo
+			 */
+			repository.flush();
 		} catch (EmptyResultDataAccessException e) {
 			throw new PermissaoNaoEncontradaException(id);
 
