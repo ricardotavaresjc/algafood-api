@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.algaworks.algafood.api.assembler.FormaPagamentoAssembler;
+import com.algaworks.algafood.api.model.FormaPagamentoModel;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.FormaPagamento;
@@ -32,21 +34,20 @@ public class FormaPagamentoController {
 
 	@Autowired
 	private FormaPagamentoService service;
+	
+	@Autowired
+	private FormaPagamentoAssembler formaPagamentoAssembler;
 
 	@GetMapping
-	public List<FormaPagamento> listar(){
-		return repository.findAll();
+	public List<FormaPagamentoModel> listar(){
+		return formaPagamentoAssembler.toCollectionModel(repository.findAll());
 	}
 
 	@GetMapping("/{formaPagamentoId}")
-	public ResponseEntity<FormaPagamento> buscar(@PathVariable(name = "formaPagamentoId") Long id) {
-		Optional<FormaPagamento> formaPagamento = repository.findById(id);
+	public FormaPagamentoModel buscar(@PathVariable(name = "formaPagamentoId") Long id) {
+		FormaPagamento formaPagamento = service.buscarOuFalhar(id);
 
-		if(formaPagamento.isPresent()) {
-			return ResponseEntity.ok(formaPagamento.get());
-		}
-
-		return ResponseEntity.notFound().build();
+		return formaPagamentoAssembler.toModel(formaPagamento);
 	}
 
 	@PostMapping

@@ -40,6 +40,11 @@ public class FormaPagamentoService {
 					String.format(MSG_FORMA_DE_PAGAMENTO_EM_USO, id));
 		}
 	}
+	
+	public FormaPagamento buscarOuFalhar(Long formaPagamentoId) {
+		
+		return repository.findById(formaPagamentoId).orElseThrow(()-> new FormaPagamentoNaoEncontradoException(formaPagamentoId));
+	}
 
 
 }

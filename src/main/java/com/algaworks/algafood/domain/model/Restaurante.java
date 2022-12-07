@@ -44,19 +44,17 @@ public class Restaurante {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	//@NotBlank -validado pela dto
+	
 	@Column(nullable = false)
 	private String nome;
-
-	//@NotNull -validado pela dto
-	//@PositiveOrZero -validado pela dto
-    //@Multiplo(numero = 5) 
+	 
 	@Column(name = "taxa_frete", nullable = false)
 	private BigDecimal taxaFrete;
 
 	@Embedded //é uma classe do tipo incorporada
 	private Endereco endereco;
+	
+	private Boolean ativo = Boolean.TRUE;
 
 	@CreationTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
@@ -66,9 +64,6 @@ public class Restaurante {
 	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime dataAtualizacao;
 
-	//@Valid //precisa do valid para o @NotNull agir em cascata -validado pela dto
-	//@ConvertGroup(from = Default.class, to = Groups.CozinhaId.class) -validado pela dto
-	//@NotNull// Não é o suficiente, ou seja nesse caso so vai validar a instancia e não sobre o os atributos dela -validado pela dto
 	@ManyToOne
 	@JoinColumn(name = "cozinha_id", nullable = false)
 	private Cozinha cozinha;
@@ -81,5 +76,15 @@ public class Restaurante {
 
 	@OneToMany(mappedBy = "restaurante")
 	private List<Produto> produtos = new ArrayList<>();
+	
+	//Dica para o codigo ficar mais legivel na service
+	public void ativar() {
+		setAtivo(true);
+	}
+	
+	public void inativar() {
+		setAtivo(false);
+	}
+	
 
 }
