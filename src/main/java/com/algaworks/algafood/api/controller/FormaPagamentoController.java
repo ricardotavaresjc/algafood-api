@@ -3,6 +3,8 @@ package com.algaworks.algafood.api.controller;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +20,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algafood.api.assembler.FormaPagamentoAssembler;
+import com.algaworks.algafood.api.assembler.FormaPagamentoInputDisassembler;
 import com.algaworks.algafood.api.model.FormaPagamentoModel;
+import com.algaworks.algafood.api.model.input.FormaPagamentoInput;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.FormaPagamento;
@@ -37,6 +41,9 @@ public class FormaPagamentoController {
 	
 	@Autowired
 	private FormaPagamentoAssembler formaPagamentoAssembler;
+	
+	@Autowired
+	private FormaPagamentoInputDisassembler formaPagamentoInputDisassembler;
 
 	@GetMapping
 	public List<FormaPagamentoModel> listar(){
@@ -52,36 +59,25 @@ public class FormaPagamentoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public FormaPagamento adicionar(@RequestBody FormaPagamento formaPagamento) {
-		return service.salvar(formaPagamento);
+	public FormaPagamentoModel adicionar(@RequestBody @Valid FormaPagamentoInput formaPagamentoInput) {
+		FormaPagamento formaPagamento = formaPagamentoInputDisassembler.toDomainObject(formaPagamentoInput);
+		return formaPagamentoAssembler.toModel(service.salvar(formaPagamento));
 	}
 
 	@PutMapping("/{formaPagamentoID}")
-	public ResponseEntity<FormaPagamento> atualizar(@PathVariable(name = "formaPagamentoID") Long id, @RequestBody FormaPagamento formaPagamento){
-		Optional<FormaPagamento> formaPagamentoAtual = repository.findById(id);
+	public FormaPagamentoModel atualizar(@PathVariable(name = "formaPagamentoID") Long id, @RequestBody @Valid FormaPagamentoInput formaPagamentoInput){
+		
+		FormaPagamento formaPagamentoAtual = service.buscarOuFalhar(id);
+		formaPagamentoInputDisassembler.copyToDomainObject(formaPagamentoInput, formaPagamentoAtual);
 
-		if(formaPagamentoAtual.isPresent()) {
-			BeanUtils.copyProperties(formaPagamento, formaPagamentoAtual.get(),"id");
-
-			FormaPagamento formaPagamentoSalvo = service.salvar(formaPagamentoAtual.get());
-
-			return ResponseEntity.ok(formaPagamentoSalvo);
-		}
-
-		return ResponseEntity.notFound().build();
+		return formaPagamentoAssembler.toModel(service.salvar(formaPagamentoAtual));
 	}
 
 	@DeleteMapping("/{formaPagamentoID}")
-	public ResponseEntity<?> remover(@PathVariable(name = "formaPagamentoID") Long id){
-		try {
-			service.excluir(id);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.notFound().build();
-		}
-		catch (EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-		}
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable(name = "formaPagamentoID") Long id) {
+		service.excluir(id);
+
 	}
 
 
