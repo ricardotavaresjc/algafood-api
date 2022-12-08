@@ -12,22 +12,22 @@ import lombok.Data;
 public class Endereco {
 
 	@Column(name = "endereco_cep")
-	public String cep;
+	private String cep;
 
 	@Column(name = "endereco_logradouro")
-	public String logradouro;
+	private String logradouro;
 
 	@Column(name = "endereco_numero")
-	public String numero;
+	private String numero;
 
 	@Column(name = "endereco_complemento")
-	public String complemento;
+	private String complemento;
 
 	@Column(name = "endereco_bairro")
-	public String bairro;
+	private String bairro;
 
 	@ManyToOne
 	@JoinColumn(name = "endereco_cidade_id")
-	public Cidade cidade;
+	private Cidade cidade;
 
 }
