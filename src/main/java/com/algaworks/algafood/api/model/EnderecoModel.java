@@ -1,5 +1,7 @@
 package com.algaworks.algafood.api.model;
 
+import javax.validation.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,10 +9,11 @@ import lombok.Setter;
 @Setter
 public class EnderecoModel {
 
-	private String cep;
+	@NotBlank
+	private String cep;	
 	private String logradouro;
-	private String numero;
-	private String complemento;
-	private String bairro;
+	private String numero;	
+	private String complemento;	
+	private String bairro;	
 	private CidadeResumoModel cidade;
 }
