@@ -22,14 +22,14 @@ import com.algaworks.algafood.api.model.GrupoModel;
 import com.algaworks.algafood.api.model.input.GrupoInput;
 import com.algaworks.algafood.domain.model.Grupo;
 import com.algaworks.algafood.domain.repository.GrupoRepository;
-import com.algaworks.algafood.domain.service.GrupoService;
+import com.algaworks.algafood.domain.service.CadastroGrupoService;
 
 @RestController
 @RequestMapping("/grupos")
 public class GrupoController {
 	
 	@Autowired
-	private GrupoService service;
+	private CadastroGrupoService service;
 	
 	@Autowired
 	private GrupoRepository repository;
