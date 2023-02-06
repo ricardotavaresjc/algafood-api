@@ -41,4 +41,8 @@ public class PermissaoService {
                     String.format(MSG_PERMISSAO_EM_USO, id));
         }
 	}
+	
+	public Permissao buscarOuFalhar(Long permissaoId) {
+		return repository.findById(permissaoId).orElseThrow(() -> new PermissaoNaoEncontradaException(permissaoId));
+	}
 }

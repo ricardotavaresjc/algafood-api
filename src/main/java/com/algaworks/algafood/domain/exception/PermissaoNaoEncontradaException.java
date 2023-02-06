@@ -10,7 +10,7 @@ public class PermissaoNaoEncontradaException extends EntidadeNaoEncontradaExcept
 	}
 	
 	public PermissaoNaoEncontradaException(Long permissaoId) {
-		this(String.format("Não foi encontrado permissão com o id %d", permissaoId));
+		this(String.format("Não existe um cadastro de permissão com o id %d", permissaoId));
 	}
 	
 

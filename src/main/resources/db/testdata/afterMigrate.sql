@@ -54,6 +54,10 @@ insert into forma_pagamento (id, descricao) values (3, 'Dinheiro');
 insert into permissao (id, nome, descricao) values (1, 'CONSULTAR_COZINHAS', 'Permite consultar cozinhas');
 insert into permissao (id, nome, descricao) values (2, 'EDITAR_COZINHAS', 'Permite editar cozinhas');
 
+insert into grupo(nome) values ('Gerente'), ('Vendedor'), ('Secretária'), ('Cadastrador');
+
+insert into grupo_permissao(grupo_id, permissao_id) values(1,1),(1,2),(2,1),(2,2),(3,1);
+
 insert into restaurante_forma_pagamento (restaurante_id, forma_pagamento_id) values (1, 1), (1, 2), (1, 3), (2, 3), (3, 2), (3, 3), (4, 1), (4, 2), (5, 1), (5, 2), (6, 3);
 
 insert into produto (nome, descricao, preco, ativo, restaurante_id) values ('Porco com molho agridoce', 'Deliciosa carne suína ao molho especial', 78.90, 1, 1);
@@ -71,7 +75,7 @@ insert into produto (nome, descricao, preco, ativo, restaurante_id) values ('San
 
 insert into produto (nome, descricao, preco, ativo, restaurante_id) values ('Espetinho de Cupim', 'Acompanha farinha, mandioca e vinagrete', 8, 1, 6);
 
-insert into grupo(nome) values ('Gerente'), ('Vendedor'), ('Secretária'), ('Cadastrador');
+
 
 insert into usuario (id, nome, email, senha, data_cadastro) values
 (1, 'João da Silva', 'joao.ger@algafood.com', '123', utc_timestamp),
