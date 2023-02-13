@@ -25,6 +25,7 @@ import com.algaworks.algafood.api.model.input.RestauranteInput;
 import com.algaworks.algafood.domain.exception.CidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.CozinhaNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
+import com.algaworks.algafood.domain.exception.RestauranteNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
@@ -109,6 +110,31 @@ public class RestauranteController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void fechar(@PathVariable Long restauranteId) {
 		cadastroRestauranteService.fechar(restauranteId);
+	}
+	
+	@PutMapping("/ativacoes")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativarMultiplos(@RequestBody List<Long> restaurantesIds) {
+		try {
+			cadastroRestauranteService.ativar(restaurantesIds);
+		} catch (RestauranteNaoEncontradaException e) {
+			//Usado para forçar devolver o codigo 400 ao inves de 404
+			//Quando restaurante passado inexistente
+			throw new NegocioException(e.getMessage(),e);
+		}
+	}
+	
+	@DeleteMapping("/ativacoes")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativarMultiplos(@RequestBody List<Long> restaurantesIds) {
+		try {
+			cadastroRestauranteService.inativar(restaurantesIds);
+		} catch (RestauranteNaoEncontradaException e) {
+			//Usado para forçar devolver o codigo 400 ao inves de 404
+			//Quando restaurante passado inexistente
+			throw new NegocioException(e.getMessage(),e);
+		}
+		
 	}
 //	@PatchMapping("/{restauranteId}")
 //	public Restaurante atualizarParcial(@PathVariable Long restauranteId, 
