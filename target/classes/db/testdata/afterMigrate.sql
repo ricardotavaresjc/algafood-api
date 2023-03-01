@@ -16,7 +16,6 @@ delete from usuario_grupo;
 delete from pedido;
 delete from item_pedido;
 
-
 set foreign_key_checks = 1;
 
 alter table cidade auto_increment = 1;
@@ -28,6 +27,8 @@ alter table permissao auto_increment = 1;
 alter table produto auto_increment = 1;
 alter table restaurante auto_increment = 1;
 alter table usuario auto_increment = 1;
+alter table pedido auto_increment = 1;
+alter table item_pedido auto_increment = 1;
 
 insert into cozinha (id, nome) values (1, 'Tailandesa');
 insert into cozinha (id, nome) values (2, 'Indiana');
@@ -90,6 +91,7 @@ insert into usuario (id, nome, email, senha, data_cadastro) values
 insert into usuario_grupo (usuario_id, grupo_id) values (1, 1), (1, 2), (2, 2);
 
 insert into restaurante_usuario_responsavel (restaurante_id, usuario_id) values (1, 5), (3, 5);
+
 
 insert into pedido (id, restaurante_id, usuario_cliente_id, forma_pagamento_id, endereco_cidade_id, endereco_cep, 
                     endereco_logradouro, endereco_numero, endereco_complemento, endereco_bairro,
