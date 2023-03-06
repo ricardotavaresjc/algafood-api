@@ -39,8 +39,8 @@ public class EmissaoPedidoService {
 	
 	
 	
-	public Pedido buscarOuFalhar(Long pedidoId) {
-		return cadastroPedidoRepository.findById(pedidoId).orElseThrow(() -> new PedidoNaoEncontradoException(pedidoId));
+	public Pedido buscarOuFalhar(String codigoPedido) {
+		return cadastroPedidoRepository.findByCodigo(codigoPedido).orElseThrow(() -> new PedidoNaoEncontradoException(codigoPedido));
 	}
 	
 	@Transactional
