@@ -51,29 +51,38 @@ public class PedidoController {
 	@Autowired
 	private PedidoInputDisassembler pedidoInputDisassembler;
 
-	@GetMapping
-	public MappingJacksonValue listar(@RequestParam(required = false) String campos) {
-		List<Pedido> pedidos = pedidoRepository.findAll();
-		List<PedidoResumoModel> pedidosModel = pedidoResumoModelAssembler.toCollectionModel(pedidos);  
-		
-		MappingJacksonValue pedidosWrapper = new MappingJacksonValue(pedidosModel);
-		
-		SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-		filterProvider.addFilter("pedidoFilter", SimpleBeanPropertyFilter.serializeAll());
-		
-		if (StringUtils.isNotBlank(campos)) {
-			filterProvider.addFilter("pedidoFilter", SimpleBeanPropertyFilter.filterOutAllExcept(campos.split(",")));
-		}
-		
-		pedidosWrapper.setFilters(filterProvider);
-		
-		return pedidosWrapper;
-	}
+
 	
 	//Metodo sem o Tecnica @JsonFIlter para trazer as propriedades 
+	//Utilizando squiggly para fields
+	@GetMapping
+	public List<PedidoResumoModel> listar() {
+		List<Pedido> todosPedidos = pedidoRepository.findAll();
+		
+		return pedidoResumoModelAssembler.toCollectionModel(todosPedidos);
+	}
+	
+	//UMa forma de utilizar o fields, carregar somente as propriedades selecionadas
 //	@GetMapping
-//	public List<PedidoResumoModel> listar() {
-//		return pedidoResumoModelAssembler.toCollectionModel(pedidoRepository.findAll());
+//	public MappingJacksonValue listar(@RequestParam(required = false) String campos) {
+//		List<Pedido> pedidos = pedidoRepository.findAll();
+//		List<PedidoResumoModel> pedidosModel = pedidoResumoModelAssembler.toCollectionModel(pedidos);  
+//		
+//		//Envelopa pedidosModel para poder customizar as propriedades serelializadas
+//		MappingJacksonValue pedidosWrapper = new MappingJacksonValue(pedidosModel);
+//		
+//		//Se não passar nada , traz todos
+//		SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+//		filterProvider.addFilter("pedidoFilter", SimpleBeanPropertyFilter.serializeAll());
+//		
+//		//Se vier algo em campos, carrega apenas as propriedades passadas
+//		if (StringUtils.isNotBlank(campos)) {
+//			filterProvider.addFilter("pedidoFilter", SimpleBeanPropertyFilter.filterOutAllExcept(campos.split(",")));
+//		}
+//		
+//		pedidosWrapper.setFilters(filterProvider);
+//		
+//		return pedidosWrapper;
 //	}
 
 	@GetMapping("/{codigoPedido}")
