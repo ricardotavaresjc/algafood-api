@@ -26,6 +26,13 @@ import com.algaworks.algafood.domain.model.Cidade;
 import com.algaworks.algafood.domain.repository.CidadeRepository;
 import com.algaworks.algafood.domain.service.CadastroCidadeService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Api(tags = "Cidades")
+@Tag(name = "Cidades", description = "Gerencia as Cidades")
 @RestController
 @RequestMapping("/cidades")
 public class CidadeController {
@@ -42,20 +49,25 @@ public class CidadeController {
 	@Autowired
 	private CidadeInputDisassembler cidadeModelDisassembler;
 
+	@ApiOperation(value = "Lista as cidades")
 	@GetMapping
 	public List<CidadeModel> listar(){
 		return cidadeModelAssembler.toCollectionModel(cidadeRepository.findAll());
 	}
 
+	@ApiOperation(value = "Busca uma cidade por ID", httpMethod = "GET")
 	@GetMapping("/{cidadeId}")
-	public CidadeModel buscar(@PathVariable Long cidadeId) {
+	public CidadeModel buscar(@ApiParam(value = "Id de uma cidade", example = "1") @PathVariable Long cidadeId) {
 		return cidadeModelAssembler.toModel(cadastroCidadeService.buscarOuFalhar(cidadeId));
 
 	}
 
+	@ApiOperation(value = "Cadastra uma cidade", httpMethod = "POST")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public CidadeModel adicionar(@RequestBody @Valid CidadeInput cidadeInput) {
+	public CidadeModel adicionar(
+			@ApiParam(name="body", value ="Representação de uma cidade")
+			@RequestBody @Valid CidadeInput cidadeInput) {
 
 		try {
 			Cidade cidade = cidadeModelDisassembler.toDomainObject(cidadeInput);
@@ -66,8 +78,13 @@ public class CidadeController {
 
 	}
 
+	@ApiOperation(value = "Atualiza uma cidade por ID", httpMethod = "PUT")
 	@PutMapping("/{cidadeId}")
-	public CidadeModel atualizar(@PathVariable Long cidadeId, @RequestBody @Valid CidadeInput cidadeInput) {
+	public CidadeModel atualizar(
+			@ApiParam(value = "Id de uma cidade", example = "1") 
+			@PathVariable Long cidadeId,
+			@ApiParam(name="body", value ="Representação de uma nova cidade")
+			@RequestBody @Valid CidadeInput cidadeInput) {
 		try {
 			Cidade cidadeAtual = cadastroCidadeService.buscarOuFalhar(cidadeId);
 			cidadeModelDisassembler.copyToDomainObject(cidadeInput, cidadeAtual);
@@ -81,9 +98,10 @@ public class CidadeController {
 
 	}
 
+	@ApiOperation(value = "Exclui uma cidade por ID", httpMethod = "@DELETE")
 	@DeleteMapping("/{cidadeId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void remover(@PathVariable Long cidadeId) {
+	public void remover(@ApiParam(value = "Id de uma cidade", example = "1") @PathVariable Long cidadeId) {
 		cadastroCidadeService.excluir(cidadeId);
 
 	}	

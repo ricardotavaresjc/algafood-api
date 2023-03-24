@@ -30,19 +30,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.httpBasic()
-			
-			.and()
+			.csrf().disable()
 			.authorizeRequests()
-				.antMatchers("/v1/cozinhas/**").permitAll()
-				.anyRequest().authenticated()
-			
+				.antMatchers("/v3/api-docs**",
+						"/swagger-ui/**",
+						"swagger-ui.html").permitAll()
+				.anyRequest().authenticated()				
 			.and()
-			.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				
-			.and()
-				.csrf().disable();
+		.httpBasic();
 	}
 	
 	@Bean
