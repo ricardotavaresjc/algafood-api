@@ -1,5 +1,5 @@
-package com.algaworks.algafood;
-
-public class CadastroGrupoApiTest {
-
-}
+//package com.algaworks.algafood;
+//
+//public class CadastroGrupoApiTest {
+//
+//}
